@@ -1,4 +1,4 @@
-# 🏫 VKU Study Room Booking Application
+# VKU Study Room Booking Application
 
 A modern, cross-platform mobile and web application for reserving study rooms, collaborative spaces, and computer labs at Vietnam-Korea University of Information and Communication Technology (VKU).
 
@@ -9,9 +9,9 @@ A modern, cross-platform mobile and web application for reserving study rooms, c
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
-### 👨‍🎓 For Students:
+### For Students:
 - **Interactive Room Catalog**: Filter study rooms by building (`V`, `A`, `B`, `C`), capacity, and equipment (High-spec PC, Projector, AC, Whiteboard).
 - **Real-Time Conflict Engine**:
   - Differentiates between **Booked** (room-specific slots) and **Time Conflict** (global clashes across other rooms).
@@ -21,14 +21,14 @@ A modern, cross-platform mobile and web application for reserving study rooms, c
 - **Local Notifications**: Automatic 15-minute check-in alert triggers (`expo-notifications` with Expo Go fallback).
 - **Theme Engine**: Sleek Dark Mode & Light Mode support.
 
-### 🛡️ For Administrators:
+### For Administrators:
 - **Admin Portal**: Authentication interface (`admin@vku.udn.vn`).
 - **Room Management**: Add new rooms with custom specs, equipment, capacity, and custom image URLs or device photos.
 - **Delete & Maintain Rooms**: Real-time removal of outdated room listings.
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 | Component | Technology Used |
 | :--- | :--- |
@@ -42,7 +42,7 @@ A modern, cross-platform mobile and web application for reserving study rooms, c
 
 ---
 
-## 📁 Project Architecture
+## Project Architecture
 
 ```
 mini-project-2-study-room-booking/
@@ -62,7 +62,7 @@ mini-project-2-study-room-booking/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Prerequisites
 - Node.js (v18 or higher)
@@ -83,13 +83,13 @@ npm install
 
 ### 3. Run Locally
 
-#### 📱 Mobile Development (Expo Go):
+#### Mobile Development (Expo Go):
 ```bash
 npm start
 ```
 *Scan the generated QR code using the **Expo Go** app on Android or iOS.*
 
-#### 🌐 Web Development:
+#### Web Development:
 ```bash
 npm run web
 ```
@@ -97,7 +97,7 @@ npm run web
 
 ---
 
-## 🌐 Web Production Build & Deployment
+## Web Production Build & Deployment
 
 ### Build Web Static Bundle:
 ```bash
@@ -114,6 +114,6 @@ npm run build:web
 
 ---
 
-## 📝 License
+## License
 
 Distributed under the MIT License. Developed for VKU Mobile Application Development.
