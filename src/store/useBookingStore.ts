@@ -29,7 +29,6 @@ const safeStorage: StateStorage = {
     try {
       return await AsyncStorage.getItem(name);
     } catch (e) {
-      console.log('[SafeStorage] getItem notice:', e);
       return null;
     }
   },
@@ -44,9 +43,7 @@ const safeStorage: StateStorage = {
     }
     try {
       await AsyncStorage.setItem(name, value);
-    } catch (e) {
-      console.log('[SafeStorage] setItem notice:', e);
-    }
+    } catch (e) {}
   },
   removeItem: async (name: string): Promise<void> => {
     if (Platform.OS === 'web') {
