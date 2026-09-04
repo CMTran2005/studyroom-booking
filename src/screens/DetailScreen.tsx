@@ -22,7 +22,7 @@ import { styles } from '../styles/DetailScreen.styles';
 export const DetailScreen = ({ route, navigation }: any) => {
   const room: Room = route.params.room;
   const { width } = useWindowDimensions();
-  const { themeMode, isSlotBooked, isRoomSlotBooked, isRoomAvailableToday, addBooking } = useBookingStore();
+  const { themeMode, bookings, isSlotBooked, isRoomSlotBooked, isRoomAvailableToday, addBooking } = useBookingStore();
   const isDark = themeMode === 'dark';
 
   const isWide = width >= 850;

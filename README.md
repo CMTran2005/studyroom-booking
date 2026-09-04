@@ -2,10 +2,12 @@
 
 A modern, cross-platform mobile and web application for reserving study rooms, collaborative spaces, and computer labs at Vietnam-Korea University of Information and Communication Technology (VKU).
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Cloudflare%20Pages-F38020?style=for-the-badge&logo=cloudflare)](https://studyroom-booking.cmtran2005.workers.dev/)
 [![Expo](https://img.shields.io/badge/Expo-SDK%2057-black?logo=expo)](https://expo.dev)
 [![React Native](https://img.shields.io/badge/React%20Native-0.86-61DAFB?logo=react)](https://reactnative.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?logo=typescript)](https://www.typescriptlang.org)
-[![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel)](https://vercel.com)
+
+🌐 **Live Web Demo**: [https://studyroom-booking.cmtran2005.workers.dev/](https://studyroom-booking.cmtran2005.workers.dev/)
 
 ---
 
@@ -15,9 +17,10 @@ A modern, cross-platform mobile and web application for reserving study rooms, c
 - **Interactive Room Catalog**: Filter study rooms by building (`V`, `A`, `B`, `C`), capacity, and equipment (High-spec PC, Projector, AC, Whiteboard).
 - **Real-Time Conflict Engine**:
   - Differentiates between **Booked** (room-specific slots) and **Time Conflict** (global clashes across other rooms).
+  - Instant UI reactivity when booking or canceling without manual page refresh.
   - Dynamic availability indicators (`Available` vs `Occupied`).
 - **QR Code Digital Pass**: Generates a scannable digital QR pass upon booking confirmation.
-- **My Bookings Dashboard**: Multi-device responsive grid layout supporting 1, 2, or 3-column views with real-time cancelation.
+- **My Bookings Dashboard**: Multi-device responsive grid layout supporting 1, 2, or 3-column views with instant cancelation.
 - **Local Notifications**: Automatic 15-minute check-in alert triggers (`expo-notifications` with Expo Go fallback).
 - **Theme Engine**: Sleek Dark Mode & Light Mode support.
 
@@ -32,6 +35,7 @@ A modern, cross-platform mobile and web application for reserving study rooms, c
 
 | Component | Technology Used |
 | :--- | :--- |
+| **Live Web Hosting** | Cloudflare Pages / Workers (`https://studyroom-booking.cmtran2005.workers.dev/`) |
 | **Framework** | Expo SDK 57, React Native 0.86 |
 | **Language** | TypeScript |
 | **State Management** | Zustand with `safeStorage` (localStorage / AsyncStorage adapter) |
@@ -105,12 +109,13 @@ npm run build:web
 ```
 *Outputs static web build files inside the `dist/` directory.*
 
-### Deploying to Vercel:
-1. Connect your GitHub repository (`CMTran2005/studyroom-booking`) to **Vercel**.
-2. Vercel automatically detects `vercel.json` with build settings:
+### Deploying to Cloudflare Pages:
+1. Connect your GitHub repository (`CMTran2005/studyroom-booking`) to **Cloudflare Pages**.
+2. Set build settings:
+   - **Framework Preset**: None / Expo
    - **Build Command**: `npm run build:web`
-   - **Output Directory**: `dist`
-3. Click **Deploy**.
+   - **Build output directory**: `dist`
+3. Deploy to get your live URL (e.g. `https://studyroom-booking.cmtran2005.workers.dev/`).
 
 ---
 

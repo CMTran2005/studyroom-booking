@@ -11,13 +11,11 @@ interface RoomCardProps {
 
 export const RoomCard = memo(({ room, onPress }: RoomCardProps) => {
   const themeMode = useBookingStore((state) => state.themeMode);
+  // Reactively subscribe to bookings array so status badge updates instantly on add/cancel
+  const bookings = useBookingStore((state) => state.bookings);
   const isRoomAvailableToday = useBookingStore((state) => state.isRoomAvailableToday);
 
-  // Dynamic real-time status check with safe fallback
-  const isAvailable = typeof isRoomAvailableToday === 'function'
-    ? isRoomAvailableToday(room.id)
-    : (room.isAvailableNow ?? true);
-
+  const isAvailable = isRoomAvailableToday(room.id);
   const isDark = themeMode === 'dark';
 
   return (

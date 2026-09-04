@@ -18,7 +18,7 @@ export const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({
   isSlotBooked,
   isRoomSlotBooked,
 }) => {
-  const themeMode = useBookingStore((state) => state.themeMode);
+  const { themeMode, bookings } = useBookingStore();
   const isDark = themeMode === 'dark';
 
   return (

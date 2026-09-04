@@ -31,6 +31,8 @@ export const HomeScreen = ({ navigation }: any) => {
 
   const {
     themeMode,
+    bookings,
+    rooms,
     searchQuery,
     setSearchQuery,
     selectedBuilding,
@@ -106,6 +108,7 @@ export const HomeScreen = ({ navigation }: any) => {
             key={`grid-${numColumns}`}
             numColumns={numColumns}
             data={filteredRooms}
+            extraData={bookings}
             renderItem={renderRoomItem}
             keyExtractor={keyExtractor}
             columnWrapperStyle={numColumns > 1 ? styles.columnWrapper : undefined}
