@@ -2,6 +2,24 @@ export type Building = 'A' | 'B' | 'C' | 'V';
 
 export type Equipment = 'Projector' | 'Whiteboard' | 'High-spec PC' | 'AC';
 
+export type UserRole = 'student' | 'admin';
+
+export interface UserProfile {
+  uid: string;
+  email: string;
+  displayName: string;
+  role: UserRole;
+  createdAt: string;
+}
+
+export type BookingStatus = 'confirmed' | 'checked_in' | 'cancelled';
+
+export type BookingPurpose =
+  | 'Học nhóm & Thuyết trình'
+  | 'Nghiên cứu & Lập trình AI'
+  | 'Luyện thi & Đồ án Capstone'
+  | 'Tự học yên tĩnh';
+
 export interface Room {
   id: string;
   name: string;
@@ -30,9 +48,13 @@ export interface Booking {
   date: string; // YYYY-MM-DD
   slotId: string;
   slotTime: string;
+  userId?: string;
   userEmail: string;
   createdAt: string;
   qrCodeValue: string;
+  status: BookingStatus;
+  purpose?: string;
+  checkedInAt?: string;
 }
 
 export interface DateItem {

@@ -1,0 +1,290 @@
+import { StyleSheet, Platform } from 'react-native';
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  containerLight: {
+    backgroundColor: '#f8fafc',
+  },
+  containerDark: {
+    backgroundColor: '#0b0f19',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+    paddingHorizontal: 20,
+  },
+  authCard: {
+    width: '100%',
+    maxWidth: 440,
+    borderRadius: 24,
+    padding: 28,
+    borderWidth: 1,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+  },
+  cardLight: {
+    backgroundColor: '#ffffff',
+    borderColor: '#e2e8f0',
+  },
+  cardDark: {
+    backgroundColor: '#131b2e',
+    borderColor: '#1e2a42',
+  },
+  logoRow: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  logoBadge: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#eef2ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: '#c7d2fe',
+    marginBottom: 12,
+  },
+  logoBadgeDark: {
+    backgroundColor: '#1e1b4b',
+    borderColor: '#3730a3',
+  },
+  vkuBadge: {
+    backgroundColor: '#eff6ff',
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#bfdbfe',
+    marginBottom: 6,
+  },
+  vkuBadgeDark: {
+    backgroundColor: '#1e293b',
+    borderColor: '#2563eb',
+  },
+  vkuBadgeText: {
+    color: '#4f46e5',
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+  },
+  vkuBadgeTextDark: {
+    color: '#93c5fd',
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: '800',
+    textAlign: 'center',
+    letterSpacing: -0.4,
+  },
+  subtitle: {
+    fontSize: 13,
+    textAlign: 'center',
+    marginTop: 4,
+    lineHeight: 18,
+  },
+  segmentTab: {
+    flexDirection: 'row',
+    borderRadius: 14,
+    padding: 4,
+    borderWidth: 1,
+    marginVertical: 18,
+  },
+  segmentTabLight: {
+    backgroundColor: '#f1f5f9',
+    borderColor: '#e2e8f0',
+  },
+  segmentTabDark: {
+    backgroundColor: '#0b0f19',
+    borderColor: '#172136',
+  },
+  tabBtn: {
+    flex: 1,
+    paddingVertical: 9,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  tabBtnActive: {
+    backgroundColor: '#4f46e5',
+    shadowColor: '#4f46e5',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  tabText: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  tabTextActive: {
+    color: '#ffffff',
+  },
+  inputGroup: {
+    marginBottom: 14,
+  },
+  inputLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    marginBottom: 6,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: Platform.OS === 'ios' ? 12 : 10,
+    borderWidth: 1.5,
+    gap: 10,
+  },
+  inputWrapperLight: {
+    backgroundColor: '#f8fafc',
+    borderColor: '#cbd5e1',
+  },
+  inputWrapperDark: {
+    backgroundColor: '#0b0f19',
+    borderColor: '#1e2a42',
+  },
+  input: {
+    flex: 1,
+    fontSize: 14,
+    padding: 0,
+  },
+  domainHint: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#4f46e5',
+    backgroundColor: '#eef2ff',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  domainHintDark: {
+    color: '#a5b4fc',
+    backgroundColor: '#1e1b4b',
+  },
+  errorBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    backgroundColor: '#fef2f2',
+    borderWidth: 1,
+    borderColor: '#fecaca',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 16,
+  },
+  errorBoxDark: {
+    backgroundColor: '#450a0a',
+    borderColor: '#7f1d1d',
+  },
+  errorText: {
+    color: '#ef4444',
+    fontSize: 12.5,
+    fontWeight: '600',
+    flex: 1,
+    lineHeight: 18,
+  },
+  errorTextDark: {
+    color: '#fca5a5',
+  },
+  submitBtn: {
+    backgroundColor: '#4f46e5',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 13,
+    borderRadius: 14,
+    marginTop: 6,
+    marginBottom: 18,
+    shadowColor: '#4f46e5',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  submitBtnDisabled: {
+    backgroundColor: '#94a3b8',
+    shadowOpacity: 0,
+  },
+  submitBtnText: {
+    color: '#ffffff',
+    fontSize: 14.5,
+    fontWeight: '700',
+  },
+  demoDivider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginVertical: 12,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+  },
+  dividerLineLight: {
+    backgroundColor: '#e2e8f0',
+  },
+  dividerLineDark: {
+    backgroundColor: '#1e2a42',
+  },
+  dividerText: {
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  demoBtnRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  demoBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  demoBtnLight: {
+    backgroundColor: '#f8fafc',
+    borderColor: '#e2e8f0',
+  },
+  demoBtnDark: {
+    backgroundColor: '#0b0f19',
+    borderColor: '#1e2a42',
+  },
+  demoBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  footerNote: {
+    marginTop: 18,
+    fontSize: 11.5,
+    textAlign: 'center',
+    lineHeight: 16,
+  },
+  textLight: {
+    color: '#0f172a',
+  },
+  textDark: {
+    color: '#f8fafc',
+  },
+  subtextLight: {
+    color: '#64748b',
+  },
+  subtextDark: {
+    color: '#94a3b8',
+  },
+});

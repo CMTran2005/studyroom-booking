@@ -50,17 +50,38 @@ A modern, cross-platform mobile and web application for reserving study rooms, c
 
 ```
 mini-project-2-study-room-booking/
-├── App.tsx                     # Entry point & Safe Area Provider
+├── App.tsx                     # Entry point & Root Safe Area Provider
+├── .env.example                # Environment variables template
 ├── vercel.json                 # SPA Routing & Vercel deployment config
 ├── src/
-│   ├── components/             # Reusable UI components (RoomCard, TimeSlotGrid, QRModal, etc.)
+│   ├── components/             # Reusable UI components & barrel export
+│   │   ├── booking/            # RoomCard, DateSelector, TimeSlotGrid, FilterChips
+│   │   ├── layout/             # WebHeader, ThemeSwitch
+│   │   ├── modals/             # QRModal, UserProfileModal
+│   │   └── index.ts            # Component barrel exports
 │   ├── data/                   # Initial room catalog & mock data
-│   ├── navigation/             # AppNavigator & BottomTabNavigator with Safe Insets
-│   ├── screens/                # HomeScreen, DetailScreen, MyBookingsScreen, AdminScreen, AddRoomScreen
-│   ├── store/                  # useBookingStore (Zustand state & conflict engine)
-│   ├── styles/                 # Modular CSS-in-JS style files
-│   ├── types/                  # TypeScript interface definitions
-│   └── utils/                  # Safe local notification utilities
+│   ├── navigation/             # AppNavigator (Native Stack & Bottom Tabs)
+│   ├── screens/                # Application screens & barrel export
+│   │   ├── HomeScreen.tsx      # Room browsing & catalog
+│   │   ├── DetailScreen.tsx    # Room details, slot selection & QR booking
+│   │   ├── MyBookingsScreen.tsx# Reservation management & status tabs
+│   │   ├── AdminScreen.tsx     # Admin room management & role manager
+│   │   ├── AuthScreen.tsx      # VKU Authentication & registration
+│   │   └── index.ts            # Screen barrel exports
+│   ├── services/               # Firebase & backend services
+│   │   ├── firebaseConfig.ts   # Dedicated Firebase initialization & Auth persistence
+│   │   ├── authService.ts      # Authentication & Firestore role sync
+│   │   ├── firestoreService.ts # Realtime Firestore room/booking sync & auto-seed
+│   │   └── index.ts            # Service barrel exports
+│   ├── store/                  # Zustand state management (useBookingStore)
+│   ├── styles/                 # Categorized styles & design tokens
+│   │   ├── components/         # Component-specific StyleSheets
+│   │   ├── navigation/         # Navigation & TabBar StyleSheets
+│   │   ├── screens/            # Screen-specific StyleSheets
+│   │   ├── theme.ts            # Color palettes, typography & spacing
+│   │   └── index.ts            # Style barrel exports
+│   ├── types/                  # TypeScript interface definitions (index.ts)
+│   └── utils/                  # Cross-platform utilities & notifications
 └── package.json
 ```
 

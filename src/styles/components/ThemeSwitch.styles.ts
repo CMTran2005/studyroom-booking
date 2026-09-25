@@ -5,20 +5,20 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  nativeToggle: {
-    flexDirection: 'row',
+  nativeIconBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
+    justifyContent: 'center',
     borderWidth: 1,
   },
   nativeLight: {
-    backgroundColor: '#3D7EAE',
-    borderColor: '#2b628b',
+    backgroundColor: '#f1f5f9',
+    borderColor: '#e2e8f0',
   },
   nativeDark: {
-    backgroundColor: '#1D1F2C',
+    backgroundColor: '#1e293b',
     borderColor: '#334155',
   },
   nativeCircle: {

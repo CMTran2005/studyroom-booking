@@ -3,6 +3,7 @@ import {
   View,
   Text,
   FlatList,
+  ScrollView,
   TouchableOpacity,
   Modal,
   Alert,
@@ -11,14 +12,20 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useBookingStore } from '../store/useBookingStore';
-import { QRModal } from '../components/QRModal';
-import { ThemeSwitch } from '../components/ThemeSwitch';
+import {
+  QRModal,
+  WebHeader,
+  ThemeSwitch,
+  UserProfileModal,
+} from '../components';
 import { Booking } from '../types';
-import { styles } from '../styles/MyBookingsScreen.styles';
+import { styles } from '../styles/screens/MyBookingsScreen.styles';
 
 export const MyBookingsScreen = ({ navigation }: any) => {
   const { width } = useWindowDimensions();
+  const isDesktop = width >= 800;
 
   let numColumns = 1;
   if (width >= 1100) {
@@ -27,12 +34,26 @@ export const MyBookingsScreen = ({ navigation }: any) => {
     numColumns = 2;
   }
 
-  const { bookings, cancelBooking, themeMode } = useBookingStore();
+  const { bookings, cancelBooking, themeMode, currentUser, userRole } = useBookingStore();
   const isDark = themeMode === 'dark';
+  const [profileModalVisible, setProfileModalVisible] = useState(false);
 
   const [selectedBookingForQR, setSelectedBookingForQR] = useState<Booking | null>(null);
   const [qrModalVisible, setQrModalVisible] = useState<boolean>(false);
   const [bookingToCancel, setBookingToCancel] = useState<Booking | null>(null);
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'confirmed' | 'checked_in' | 'cancelled'>('ALL');
+
+  // Filter user's bookings (or all if admin)
+  const userBookings = bookings.filter((b) => {
+    // If regular user, only show their bookings
+    if (currentUser?.email && currentUser.role !== 'admin') {
+      if (b.userEmail.toLowerCase() !== currentUser.email.toLowerCase()) {
+        return false;
+      }
+    }
+    if (statusFilter === 'ALL') return true;
+    return b.status === statusFilter;
+  });
 
   const handleOpenQR = (booking: Booking) => {
     setSelectedBookingForQR(booking);
@@ -44,12 +65,12 @@ export const MyBookingsScreen = ({ navigation }: any) => {
       setBookingToCancel(booking);
     } else {
       Alert.alert(
-        'Cancel Booking',
-        `Are you sure you want to cancel your booking for ${booking.roomName} (${booking.slotTime})?`,
+        'Hủy lịch đặt phòng',
+        `Bạn có chắc chắn muốn hủy lịch đặt tại ${booking.roomName} (${booking.slotTime})?`,
         [
-          { text: 'Keep Booking', style: 'cancel' },
+          { text: 'Giữ lại lịch', style: 'cancel' },
           {
-            text: 'Yes, Cancel',
+            text: 'Đồng ý hủy',
             style: 'destructive',
             onPress: () => performCancel(booking.id),
           },
@@ -64,99 +85,318 @@ export const MyBookingsScreen = ({ navigation }: any) => {
     setBookingToCancel(null);
   };
 
-  const renderBookingItem = ({ item }: { item: Booking }) => (
-    <View style={[styles.card, isDark ? styles.cardDark : styles.cardLight]}>
-      {/* Card Header: Room Title + Location Badge & Active Reserved Tag */}
-      <View style={styles.cardHeader}>
-        <View style={{ flex: 1 }}>
-          <Text style={[styles.roomName, isDark ? styles.textDark : styles.textLight]} numberOfLines={1}>
-            {item.roomName}
-          </Text>
-          <View style={[styles.locationPill, isDark && styles.locationPillDark]}>
-            <Text style={[styles.locationText, isDark && styles.locationTextDark]}>
-              Building {item.building} • Floor {item.floor}
+  const renderBookingItem = ({ item }: { item: Booking }) => {
+    const isCancelled = item.status === 'cancelled';
+    const isCheckedIn = item.status === 'checked_in';
+
+    return (
+      <View
+        style={[
+          styles.card,
+          isDark ? styles.cardDark : styles.cardLight,
+          isCancelled && { opacity: 0.65 },
+        ]}
+      >
+        {/* Card Header: Room Title + Status Tag */}
+        <View style={styles.cardHeader}>
+          <View style={{ flex: 1 }}>
+            <Text
+              style={[styles.roomName, isDark ? styles.textDark : styles.textLight]}
+              numberOfLines={1}
+            >
+              {item.roomName}
+            </Text>
+            <View style={[styles.locationPill, isDark && styles.locationPillDark]}>
+              <Ionicons
+                name="location"
+                size={12}
+                color={isDark ? '#a5b4fc' : '#4f46e5'}
+              />
+              <Text style={[styles.locationText, isDark && styles.locationTextDark]}>
+                Tòa {item.building} • Tầng {item.floor}
+              </Text>
+            </View>
+          </View>
+
+          <View
+            style={[
+              styles.activeTag,
+              isCheckedIn
+                ? { backgroundColor: isDark ? '#1e3a8a' : '#dbeafe', borderColor: '#bfdbfe' }
+                : isCancelled
+                ? { backgroundColor: isDark ? '#334155' : '#f1f5f9', borderColor: '#cbd5e1' }
+                : isDark
+                ? styles.activeTagDark
+                : undefined,
+            ]}
+          >
+            <View
+              style={[
+                styles.greenDot,
+                isCheckedIn && { backgroundColor: '#3b82f6' },
+                isCancelled && { backgroundColor: '#94a3b8' },
+              ]}
+            />
+            <Text
+              style={[
+                styles.activeTagText,
+                isCheckedIn && { color: '#2563eb' },
+                isCancelled && { color: '#64748b' },
+                isDark && !isCheckedIn && !isCancelled && styles.activeTagTextDark,
+              ]}
+            >
+              {isCheckedIn
+                ? 'Đã nhận phòng'
+                : isCancelled
+                ? 'Đã hủy lịch'
+                : 'Đã xác nhận'}
             </Text>
           </View>
         </View>
 
-        <View style={styles.activeTag}>
-          <View style={styles.greenDot} />
-          <Text style={styles.activeTagText}>Reserved</Text>
-        </View>
-      </View>
-
-      {/* Info Breakdown Grid (Structured 2-column layout) */}
-      <View style={[styles.detailsContainer, isDark ? styles.detailsDark : styles.detailsLight]}>
-        <View style={styles.detailGridRow}>
-          <View style={styles.detailCol}>
-            <Text style={[styles.detailLabel, isDark ? styles.subtextDark : styles.subtextLight]}>Date</Text>
-            <Text style={[styles.detailValue, isDark ? styles.textDark : styles.textLight]}>{item.date}</Text>
-          </View>
-          <View style={styles.detailCol}>
-            <Text style={[styles.detailLabel, isDark ? styles.subtextDark : styles.subtextLight]}>2-Hour Session</Text>
-            <Text style={[styles.detailValue, isDark ? styles.textDark : styles.textLight]}>{item.slotTime}</Text>
-          </View>
-        </View>
-
-        <View style={styles.detailGridRow}>
-          <View style={styles.detailCol}>
-            <Text style={[styles.detailLabel, isDark ? styles.subtextDark : styles.subtextLight]}>Student Email</Text>
-            <Text style={[styles.detailValue, isDark ? styles.textDark : styles.textLight]} numberOfLines={1}>
-              {item.userEmail}
+        {/* Purpose Badge if specified */}
+        {item.purpose && (
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 5,
+              paddingHorizontal: 8,
+              paddingVertical: 3,
+              borderRadius: 6,
+              backgroundColor: isDark ? '#1e1b4b' : '#f5f3ff',
+              alignSelf: 'flex-start',
+              marginBottom: 10,
+            }}
+          >
+            <Ionicons name="bookmark-outline" size={11} color="#8b5cf6" />
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#8b5cf6' }}>
+              Mục đích: {item.purpose}
             </Text>
           </View>
-          <View style={styles.detailCol}>
-            <Text style={[styles.detailLabel, isDark ? styles.subtextDark : styles.subtextLight]}>Pass Code</Text>
-            <Text style={styles.codeText}>{item.id}</Text>
+        )}
+
+        {/* Info Breakdown Grid */}
+        <View style={[styles.detailsContainer, isDark ? styles.detailsDark : styles.detailsLight]}>
+          <View style={styles.detailGridRow}>
+            <View style={styles.detailCol}>
+              <Text style={[styles.detailLabel, isDark ? styles.subtextDark : styles.subtextLight]}>
+                Ngày học
+              </Text>
+              <Text style={[styles.detailValue, isDark ? styles.textDark : styles.textLight]}>
+                {item.date}
+              </Text>
+            </View>
+            <View style={styles.detailCol}>
+              <Text style={[styles.detailLabel, isDark ? styles.subtextDark : styles.subtextLight]}>
+                Ca học
+              </Text>
+              <Text style={[styles.detailValue, isDark ? styles.textDark : styles.textLight]}>
+                {item.slotTime}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.detailGridRow}>
+            <View style={styles.detailCol}>
+              <Text style={[styles.detailLabel, isDark ? styles.subtextDark : styles.subtextLight]}>
+                Tài khoản
+              </Text>
+              <Text
+                style={[styles.detailValue, isDark ? styles.textDark : styles.textLight]}
+                numberOfLines={1}
+              >
+                {item.userEmail}
+              </Text>
+            </View>
+            <View style={styles.detailCol}>
+              <Text style={[styles.detailLabel, isDark ? styles.subtextDark : styles.subtextLight]}>
+                Mã thẻ pass
+              </Text>
+              <Text style={styles.codeText}>{item.id}</Text>
+            </View>
           </View>
         </View>
-      </View>
 
-      {/* Action Buttons */}
-      <View style={styles.actionsRow}>
-        <TouchableOpacity
-          activeOpacity={0.8}
-          style={[styles.cancelBtn, isDark && styles.cancelBtnDark]}
-          onPress={() => triggerCancelConfirm(item)}
-        >
-          <Text style={[styles.cancelBtnText, isDark && styles.cancelBtnTextDark]}>Cancel Booking</Text>
-        </TouchableOpacity>
+        {/* Action Buttons */}
+        {!isCancelled && (
+          <View style={styles.actionsRow}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              style={[styles.cancelBtn, isDark && styles.cancelBtnDark]}
+              onPress={() => triggerCancelConfirm(item)}
+            >
+              <Ionicons
+                name="trash-outline"
+                size={14}
+                color={isDark ? '#fca5a5' : '#ef4444'}
+              />
+              <Text style={[styles.cancelBtnText, isDark && styles.cancelBtnTextDark]}>
+                Hủy lịch
+              </Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          activeOpacity={0.8}
-          style={styles.qrBtn}
-          onPress={() => handleOpenQR(item)}
-        >
-          <Text style={styles.qrBtnText}>QR Check-in Pass</Text>
-        </TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={0.85}
+              style={styles.qrBtn}
+              onPress={() => handleOpenQR(item)}
+            >
+              <Ionicons name="qr-code-outline" size={15} color="#ffffff" />
+              <Text style={styles.qrBtnText}>Thẻ QR Check-in</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
-    </View>
-  );
+    );
+  };
 
   return (
-    <SafeAreaView style={[styles.safeArea, isDark ? styles.bgDark : styles.bgLight]} edges={['top', 'left', 'right']}>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? '#0f172a' : '#ffffff'} />
-      <View style={[styles.container, isDark ? styles.bgDark : styles.bgLight]}>
-        {/* Top Bar Header */}
+    <SafeAreaView
+      style={[styles.safeArea, isDark ? styles.bgDark : styles.bgLight]}
+      edges={['top', 'left', 'right']}
+    >
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={isDark ? '#0b0f19' : '#ffffff'}
+      />
+
+      {isDesktop ? (
+        <WebHeader
+          currentTab="MyBookings"
+          onNavigateTab={(tab) => {
+            if (tab === 'Explore') {
+              (navigation as any).navigate('Explore', { screen: 'HomeScreen' });
+            } else if (tab === 'Admin') {
+              (navigation as any).navigate('AdminTab');
+            }
+          }}
+        />
+      ) : (
         <View style={[styles.header, isDark ? styles.headerDark : styles.headerLight]}>
           <View style={styles.headerContentWrapper}>
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.headerTitle, isDark ? styles.textDark : styles.textLight]}>My Bookings</Text>
-              <Text style={[styles.headerSubtitle, isDark ? styles.subtextDark : styles.subtextLight]}>
-                {bookings.length} active study room reservation{bookings.length !== 1 ? 's' : ''}
+            <View style={{ flex: 1, minWidth: 0, marginRight: 8 }}>
+              <Text
+                style={[styles.headerTitle, isDark ? styles.textDark : styles.textLight]}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                Lịch Đặt Phòng Của Tôi
+              </Text>
+              <Text
+                style={[styles.headerSubtitle, isDark ? styles.subtextDark : styles.subtextLight]}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {userBookings.length} lịch đặt phòng trong hệ thống
               </Text>
             </View>
 
-            {/* Animated Sun/Moon Theme Switch */}
-            <ThemeSwitch />
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <ThemeSwitch />
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => setProfileModalVisible(true)}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 18,
+                  backgroundColor: userRole === 'admin' ? '#7c3aed' : '#2563eb',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                accessibilityLabel="Hồ sơ tài khoản"
+              >
+                <Text style={{ color: '#ffffff', fontWeight: '700', fontSize: 14 }}>
+                  {currentUser?.displayName?.charAt(0).toUpperCase() ||
+                    currentUser?.email?.charAt(0).toUpperCase() ||
+                    'U'}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => setProfileModalVisible(true)}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 18,
+                  backgroundColor: isDark ? '#334155' : '#f1f5f9',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                accessibilityLabel="Đăng xuất tài khoản"
+              >
+                <Ionicons name="log-out-outline" size={19} color="#ef4444" />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
+      )}
+
+      <View style={[styles.container, isDark ? styles.bgDark : styles.bgLight]}>
+        {/* Status Filter Tab (Horizontal Scrollable to eliminate overflow on mobile) */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{ width: '100%', flexGrow: 0 }}
+          contentContainerStyle={{
+            paddingHorizontal: 16,
+            paddingTop: 14,
+            paddingBottom: 4,
+            gap: 8,
+          }}
+        >
+          {[
+            { label: 'Tất cả', value: 'ALL' },
+            { label: 'Đã xác nhận', value: 'confirmed' },
+            { label: 'Đã nhận phòng', value: 'checked_in' },
+            { label: 'Đã hủy', value: 'cancelled' },
+          ].map((tab) => {
+            const isSelected = statusFilter === tab.value;
+            return (
+              <TouchableOpacity
+                key={tab.value}
+                activeOpacity={0.7}
+                style={[
+                  {
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    borderRadius: 10,
+                    borderWidth: 1,
+                  },
+                  isDark
+                    ? {
+                        backgroundColor: isSelected ? '#4f46e5' : '#131b2e',
+                        borderColor: isSelected ? '#4f46e5' : '#1e2a42',
+                      }
+                    : {
+                        backgroundColor: isSelected ? '#4f46e5' : '#ffffff',
+                        borderColor: isSelected ? '#4f46e5' : '#e2e8f0',
+                      },
+                ]}
+                onPress={() => setStatusFilter(tab.value as any)}
+              >
+                <Text
+                  style={[
+                    { fontSize: 12, fontWeight: '700' },
+                    isSelected
+                      ? { color: '#ffffff' }
+                      : isDark
+                      ? styles.textDark
+                      : styles.textLight,
+                  ]}
+                >
+                  {tab.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
 
         <View style={styles.feedWrapper}>
           <FlatList
             key={`my-bookings-grid-${numColumns}`}
             numColumns={numColumns}
-            data={bookings}
+            data={userBookings}
             keyExtractor={(item) => item.id}
             renderItem={renderBookingItem}
             columnWrapperStyle={numColumns > 1 ? styles.columnWrapper : undefined}
@@ -164,21 +404,26 @@ export const MyBookingsScreen = ({ navigation }: any) => {
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
               <View style={[styles.emptyState, isDark ? styles.cardDark : styles.cardLight]}>
+                <Ionicons
+                  name="calendar-clear-outline"
+                  size={46}
+                  color={isDark ? '#64748b' : '#94a3b8'}
+                />
                 <Text style={[styles.emptyTitle, isDark ? styles.textDark : styles.textLight]}>
-                  No Study Room Bookings Yet
+                  Không có lịch đặt phòng nào
                 </Text>
-                <Text style={[styles.emptySubtitle, isDark ? styles.subtextDark : styles.subtextLight]}>
-                  You have no active study room reservations. Explore available rooms and reserve a session!
+                <Text
+                  style={[styles.emptySubtitle, isDark ? styles.subtextDark : styles.subtextLight]}
+                >
+                  Hãy khám phá danh sách các phòng học & Lab AI có sẵn để đăng ký buổi học ngay hôm nay!
                 </Text>
                 <TouchableOpacity
                   style={styles.goToHomeBtn}
                   onPress={() => {
-                    if (navigation && navigation.navigate) {
-                      navigation.navigate('Explore', { screen: 'HomeScreen' });
-                    }
+                    navigation.navigate('Explore', { screen: 'HomeScreen' });
                   }}
                 >
-                  <Text style={styles.goToHomeBtnText}>Explore Available Rooms</Text>
+                  <Text style={styles.goToHomeBtnText}>Khám phá phòng học</Text>
                 </TouchableOpacity>
               </View>
             }
@@ -192,17 +437,21 @@ export const MyBookingsScreen = ({ navigation }: any) => {
           onClose={() => setQrModalVisible(false)}
         />
 
-        {/* Universal Cancellation Modal */}
+        {/* Cancellation Confirmation Modal */}
         {bookingToCancel && (
           <Modal transparent animationType="fade" visible={true}>
             <View style={styles.modalOverlay}>
               <View style={[styles.confirmBox, isDark && styles.confirmBoxDark]}>
-                <Text style={styles.confirmTitle}>Cancel Room Booking</Text>
+                <Text style={styles.confirmTitle}>Xác nhận hủy lịch đặt</Text>
                 <Text style={[styles.confirmDesc, isDark ? styles.textDark : styles.textLight]}>
-                  Are you sure you want to cancel your booking for <Text style={{ fontWeight: '700' }}>{bookingToCancel.roomName}</Text> ({bookingToCancel.slotTime})?
+                  Bạn có chắc chắn muốn hủy lịch đặt tại{' '}
+                  <Text style={{ fontWeight: '700' }}>{bookingToCancel.roomName}</Text> (
+                  {bookingToCancel.slotTime})?
                 </Text>
-                <Text style={[styles.confirmSubdesc, isDark ? styles.subtextDark : styles.subtextLight]}>
-                  This time slot will immediately become available for other students to register.
+                <Text
+                  style={[styles.confirmSubdesc, isDark ? styles.subtextDark : styles.subtextLight]}
+                >
+                  Khung giờ này sẽ ngay lập tức mở lại cho các sinh viên khác đăng ký trên toàn hệ thống.
                 </Text>
 
                 <View style={styles.confirmBtnRow}>
@@ -210,13 +459,15 @@ export const MyBookingsScreen = ({ navigation }: any) => {
                     style={[styles.modalCancelBtn, isDark && styles.modalCancelBtnDark]}
                     onPress={() => setBookingToCancel(null)}
                   >
-                    <Text style={[styles.modalCancelBtnText, isDark && styles.textDark]}>Keep Booking</Text>
+                    <Text style={[styles.modalCancelBtnText, isDark && styles.textDark]}>
+                      Giữ lại
+                    </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.modalConfirmBtn}
                     onPress={() => performCancel(bookingToCancel.id)}
                   >
-                    <Text style={styles.modalConfirmBtnText}>Yes, Cancel</Text>
+                    <Text style={styles.modalConfirmBtnText}>Đồng ý hủy</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -224,6 +475,11 @@ export const MyBookingsScreen = ({ navigation }: any) => {
           </Modal>
         )}
       </View>
+
+      <UserProfileModal
+        visible={profileModalVisible}
+        onClose={() => setProfileModalVisible(false)}
+      />
     </SafeAreaView>
   );
 };

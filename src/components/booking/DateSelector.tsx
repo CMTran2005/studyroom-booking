@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { DateItem } from '../types';
-import { useBookingStore } from '../store/useBookingStore';
-import { styles } from '../styles/DateSelector.styles';
+import { DateItem } from '../../types';
+import { useBookingStore } from '../../store/useBookingStore';
+import { styles } from '../../styles/components/DateSelector.styles';
 
 interface DateSelectorProps {
   selectedDate: string; // YYYY-MM-DD
@@ -16,7 +16,7 @@ export const DateSelector: React.FC<DateSelectorProps> = ({ selectedDate, onDate
   const datesList: DateItem[] = useMemo(() => {
     const list: DateItem[] = [];
     const today = new Date();
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const dayNames = ['CN', 'T.2', 'T.3', 'T.4', 'T.5', 'T.6', 'T.7'];
 
     for (let i = 0; i < 7; i++) {
       const d = new Date(today);
@@ -29,7 +29,7 @@ export const DateSelector: React.FC<DateSelectorProps> = ({ selectedDate, onDate
 
       list.push({
         fullDate,
-        dayName: i === 0 ? 'Today' : dayNames[d.getDay()],
+        dayName: i === 0 ? 'Hôm nay' : dayNames[d.getDay()],
         dayNumber: day,
         isToday: i === 0,
       });
@@ -41,7 +41,7 @@ export const DateSelector: React.FC<DateSelectorProps> = ({ selectedDate, onDate
   return (
     <View style={styles.container}>
       <Text style={[styles.sectionTitle, isDark ? styles.textDark : styles.textLight]}>
-        Select Booking Date (Next 7 Days)
+        Chọn ngày đặt (7 ngày tới)
       </Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scrollRow}>
         {datesList.map((item) => {
@@ -49,7 +49,7 @@ export const DateSelector: React.FC<DateSelectorProps> = ({ selectedDate, onDate
           return (
             <TouchableOpacity
               key={item.fullDate}
-              activeOpacity={0.7}
+              activeOpacity={0.75}
               style={[
                 styles.dateCard,
                 isDark ? styles.dateCardDark : styles.dateCardLight,

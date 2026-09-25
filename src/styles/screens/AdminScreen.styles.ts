@@ -1,0 +1,333 @@
+import { StyleSheet, Platform } from 'react-native';
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  containerLight: {
+    backgroundColor: '#f8fafc',
+  },
+  containerDark: {
+    backgroundColor: '#0b0f19',
+  },
+  scrollContent: {
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    flexGrow: 1,
+  },
+  centerScrollContent: {
+    paddingVertical: 40,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '100%',
+  },
+  innerContent: {
+    width: '100%',
+    maxWidth: 1000,
+  },
+  innerContentWide: {
+    paddingHorizontal: 10,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 18,
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  headerLeft: {
+    gap: 2,
+    flex: 1,
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    letterSpacing: -0.3,
+  },
+  headerSubtitle: {
+    fontSize: 12.5,
+    marginTop: 2,
+  },
+  headerRightRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  customLogoutBtn: {
+    backgroundColor: '#fef2f2',
+    borderColor: '#fecaca',
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 10,
+  },
+  customLogoutBtnDark: {
+    backgroundColor: '#450a0a',
+    borderColor: '#7f1d1d',
+  },
+  customLogoutBtnText: {
+    color: '#ef4444',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  customLogoutBtnTextDark: {
+    color: '#fca5a5',
+  },
+  loginCard: {
+    width: '100%',
+    maxWidth: 440,
+    padding: 26,
+    borderRadius: 22,
+    borderWidth: 1,
+    gap: 14,
+  },
+  loginHeader: {
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 8,
+  },
+  loginTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+  },
+  loginSubtitle: {
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  errorBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#fef2f2',
+    borderColor: '#fecaca',
+    borderWidth: 1,
+    padding: 10,
+    borderRadius: 10,
+  },
+  errorBoxDark: {
+    backgroundColor: '#450a0a',
+    borderColor: '#7f1d1d',
+  },
+  errorText: {
+    color: '#ef4444',
+    fontSize: 12,
+    fontWeight: '600',
+    flex: 1,
+  },
+  errorTextDark: {
+    color: '#fca5a5',
+  },
+  successBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#ecfdf5',
+    borderWidth: 1,
+    borderColor: '#a7f3d0',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 16,
+  },
+  successBannerText: {
+    color: '#059669',
+    fontSize: 13,
+    fontWeight: '700',
+    flex: 1,
+  },
+  createCard: {
+    padding: 20,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  cardTitle: {
+    fontSize: 17,
+    fontWeight: '800',
+    marginBottom: 2,
+  },
+  cardSubtitle: {
+    fontSize: 12.5,
+    marginBottom: 16,
+    lineHeight: 17,
+  },
+  cardLight: {
+    backgroundColor: '#ffffff',
+    borderColor: '#e2e8f0',
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  cardDark: {
+    backgroundColor: '#131b2e',
+    borderColor: '#1e2a42',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  formGroup: {
+    marginBottom: 14,
+  },
+  rowTwoCols: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  inputLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    marginBottom: 6,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  textInput: {
+    borderRadius: 12,
+    borderWidth: 1.5,
+    paddingHorizontal: 12,
+    paddingVertical: Platform.OS === 'ios' ? 11 : 9,
+    fontSize: 13.5,
+  },
+  textArea: {
+    borderRadius: 12,
+    borderWidth: 1.5,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 13.5,
+    minHeight: 70,
+    textAlignVertical: 'top',
+  },
+  inputLight: {
+    backgroundColor: '#f8fafc',
+    borderColor: '#cbd5e1',
+    color: '#0f172a',
+  },
+  inputDark: {
+    backgroundColor: '#0b0f19',
+    borderColor: '#1e2a42',
+    color: '#f8fafc',
+  },
+  chipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 7,
+  },
+  buildingChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  buildingChipActive: {
+    backgroundColor: '#4f46e5',
+    borderColor: '#4f46e5',
+  },
+  equipmentChip: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  equipmentChipActive: {
+    backgroundColor: '#4f46e5',
+    borderColor: '#4f46e5',
+  },
+  presetChip: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  presetChipActive: {
+    backgroundColor: '#4f46e5',
+    borderColor: '#4f46e5',
+  },
+  chipLight: {
+    backgroundColor: '#f8fafc',
+    borderColor: '#e2e8f0',
+  },
+  chipDark: {
+    backgroundColor: '#0b0f19',
+    borderColor: '#1e2a42',
+  },
+  chipText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  chipTextActive: {
+    color: '#ffffff',
+    fontWeight: '700',
+  },
+  devicePickerBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+    backgroundColor: '#eef2ff',
+    borderWidth: 1,
+    borderColor: '#c7d2fe',
+  },
+  devicePickerBtnDark: {
+    backgroundColor: '#1e1b4b',
+    borderColor: '#3730a3',
+  },
+  devicePickerBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#4f46e5',
+  },
+  createBtn: {
+    backgroundColor: '#4f46e5',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginTop: 6,
+    shadowColor: '#4f46e5',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  createBtnText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    letterSpacing: -0.2,
+  },
+  submitBtn: {
+    backgroundColor: '#4f46e5',
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 6,
+  },
+  submitBtnText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  textLight: {
+    color: '#0f172a',
+  },
+  textDark: {
+    color: '#f8fafc',
+  },
+  subtextLight: {
+    color: '#64748b',
+  },
+  subtextDark: {
+    color: '#94a3b8',
+  },
+});

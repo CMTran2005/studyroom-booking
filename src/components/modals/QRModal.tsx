@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, Text, Modal, TouchableOpacity } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { Booking } from '../types';
-import { useBookingStore } from '../store/useBookingStore';
-import { styles } from '../styles/QRModal.styles';
+import { Ionicons } from '@expo/vector-icons';
+import { Booking } from '../../types';
+import { useBookingStore } from '../../store/useBookingStore';
+import { styles } from '../../styles/components/QRModal.styles';
 
 interface QRModalProps {
   visible: boolean;
@@ -23,9 +24,18 @@ export const QRModal: React.FC<QRModalProps> = ({ visible, booking, onClose }) =
         <View style={[styles.card, isDark ? styles.cardDark : styles.cardLight]}>
           {/* Header Ticket Badge */}
           <View style={styles.ticketHeader}>
-            <Text style={styles.badgeText}>VKU SMART CHECK-IN PASS</Text>
+            <View style={[styles.badgeRow, isDark && styles.badgeRowDark]}>
+              <Ionicons
+                name="shield-checkmark"
+                size={13}
+                color={isDark ? '#a5b4fc' : '#4f46e5'}
+              />
+              <Text style={[styles.badgeText, isDark && styles.badgeTextDark]}>
+                VKU SMART CHECK-IN PASS
+              </Text>
+            </View>
             <Text style={[styles.title, isDark ? styles.textDark : styles.textLight]}>
-              Room Access Pass
+              Thẻ Nhận Phòng Học
             </Text>
           </View>
 
@@ -35,7 +45,7 @@ export const QRModal: React.FC<QRModalProps> = ({ visible, booking, onClose }) =
               value={booking.qrCodeValue || booking.id}
               size={170}
               backgroundColor="#ffffff"
-              color="#0f172a"
+              color="#0b0f19"
             />
           </View>
 
@@ -45,24 +55,34 @@ export const QRModal: React.FC<QRModalProps> = ({ visible, booking, onClose }) =
               {booking.roomName}
             </Text>
             <Text style={[styles.infoText, isDark ? styles.subtextDark : styles.subtextLight]}>
-              Building {booking.building} • Floor {booking.floor}
+              Tòa {booking.building} • Tầng {booking.floor}
             </Text>
             <Text style={[styles.infoText, isDark ? styles.subtextDark : styles.subtextLight]}>
-              Date: {booking.date}
+              Ngày học: {booking.date}
             </Text>
-            <Text style={[styles.slotText, isDark ? styles.slotTextDark : styles.slotTextLight]}>
-              Session: {booking.slotTime}
+            <Text style={[styles.slotText, isDark && styles.slotTextDark]}>
+              Ca học: {booking.slotTime}
             </Text>
-            <Text style={styles.codeText}>Pass Code: {booking.id}</Text>
+            <View style={[styles.codeBadge, isDark && styles.codeBadgeDark]}>
+              <Text
+                style={[
+                  styles.codeText,
+                  { color: isDark ? '#a5b4fc' : '#4f46e5' },
+                ]}
+              >
+                Mã thẻ: {booking.id}
+              </Text>
+            </View>
           </View>
 
           <Text style={[styles.instruction, isDark ? styles.subtextDark : styles.subtextLight]}>
-            Please present this QR code to the scanner at the room door to unlock automatically.
+            Xuất trình mã QR này tại máy quét trước cửa phòng hoặc cho ban quản lý để mở khóa nhận phòng.
           </Text>
 
           {/* Close Action Button */}
-          <TouchableOpacity activeOpacity={0.8} style={styles.closeBtn} onPress={onClose}>
-            <Text style={styles.closeBtnText}>Confirm & Close</Text>
+          <TouchableOpacity activeOpacity={0.85} style={styles.closeBtn} onPress={onClose}>
+            <Ionicons name="checkmark-circle-outline" size={18} color="#ffffff" />
+            <Text style={styles.closeBtnText}>Xác nhận & Đóng</Text>
           </TouchableOpacity>
         </View>
       </View>

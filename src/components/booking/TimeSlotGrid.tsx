@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { TIME_SLOTS } from '../data/mockRooms';
-import { TimeSlot } from '../types';
-import { useBookingStore } from '../store/useBookingStore';
-import { styles } from '../styles/TimeSlotGrid.styles';
+import { Ionicons } from '@expo/vector-icons';
+import { TIME_SLOTS } from '../../data/mockRooms';
+import { TimeSlot } from '../../types';
+import { useBookingStore } from '../../store/useBookingStore';
+import { styles } from '../../styles/components/TimeSlotGrid.styles';
 
 interface TimeSlotGridProps {
   selectedSlotId: string | null;
@@ -18,13 +19,13 @@ export const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({
   isSlotBooked,
   isRoomSlotBooked,
 }) => {
-  const { themeMode, bookings } = useBookingStore();
+  const { themeMode } = useBookingStore();
   const isDark = themeMode === 'dark';
 
   return (
     <View style={styles.container}>
       <Text style={[styles.sectionTitle, isDark ? styles.textDark : styles.textLight]}>
-        Select Time Slot (2-Hour Sessions)
+        Chọn ca học (2 tiếng / ca)
       </Text>
       <View style={styles.grid}>
         {TIME_SLOTS.map((slot) => {
@@ -33,24 +34,28 @@ export const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({
           const isDisabled = isRoomBooked || isGlobalConflict;
           const isSelected = selectedSlotId === slot.id;
 
-          let statusLabel = 'Available';
+          let statusLabel = 'Còn trống';
+          let statusIcon: any = 'checkmark-circle';
           let statusStyle = styles.statusAvailable;
 
           if (isRoomBooked) {
-            statusLabel = 'Booked';
+            statusLabel = 'Đã kín';
+            statusIcon = 'close-circle';
             statusStyle = styles.statusBooked;
           } else if (isGlobalConflict) {
-            statusLabel = 'Time Conflict';
+            statusLabel = 'Trùng lịch';
+            statusIcon = 'alert-circle';
             statusStyle = styles.statusConflict;
           } else if (isSelected) {
-            statusLabel = 'Selected';
+            statusLabel = 'Đang chọn';
+            statusIcon = 'radio-button-on';
             statusStyle = styles.textSelected;
           }
 
           return (
             <TouchableOpacity
               key={slot.id}
-              activeOpacity={0.7}
+              activeOpacity={0.75}
               disabled={isDisabled}
               style={[
                 styles.slotCard,
@@ -61,6 +66,19 @@ export const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({
               onPress={() => onSlotSelect(slot)}
             >
               <View style={styles.slotHeader}>
+                <Ionicons
+                  name="time-outline"
+                  size={14}
+                  color={
+                    isSelected
+                      ? '#ffffff'
+                      : isDisabled
+                      ? '#94a3b8'
+                      : isDark
+                      ? '#818cf8'
+                      : '#4f46e5'
+                  }
+                />
                 <Text
                   style={[
                     styles.slotLabel,
@@ -73,15 +91,30 @@ export const TimeSlotGrid: React.FC<TimeSlotGridProps> = ({
                 </Text>
               </View>
 
-              <Text
-                style={[
-                  styles.slotStatus,
-                  isSelected && styles.textSelected,
-                  statusStyle,
-                ]}
-              >
-                {statusLabel}
-              </Text>
+              <View style={styles.slotStatusRow}>
+                <Ionicons
+                  name={statusIcon}
+                  size={13}
+                  color={
+                    isSelected
+                      ? '#ffffff'
+                      : isRoomBooked
+                      ? '#ef4444'
+                      : isGlobalConflict
+                      ? '#f59e0b'
+                      : '#10b981'
+                  }
+                />
+                <Text
+                  style={[
+                    styles.slotStatus,
+                    isSelected && styles.textSelected,
+                    statusStyle,
+                  ]}
+                >
+                  {statusLabel}
+                </Text>
+              </View>
             </TouchableOpacity>
           );
         })}

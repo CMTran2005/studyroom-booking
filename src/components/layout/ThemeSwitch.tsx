@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, Platform } from 'react-native';
-import { useBookingStore } from '../store/useBookingStore';
-import { styles } from '../styles/ThemeSwitch.styles';
+import { Ionicons } from '@expo/vector-icons';
+import { useBookingStore } from '../../store/useBookingStore';
+import { styles } from '../../styles/components/ThemeSwitch.styles';
 
 export const ThemeSwitch: React.FC = () => {
   const { themeMode, toggleTheme } = useBookingStore();
@@ -218,17 +219,19 @@ export const ThemeSwitch: React.FC = () => {
     );
   }
 
-  // Native Mobile Fallback (React Native Animated Pill Switch)
+  // Native Mobile Fallback (Sleek 36x36 Circular Icon Button)
   return (
     <TouchableOpacity
-      activeOpacity={0.8}
-      style={[styles.nativeToggle, isDark ? styles.nativeDark : styles.nativeLight]}
+      activeOpacity={0.7}
+      style={[styles.nativeIconBtn, isDark ? styles.nativeDark : styles.nativeLight]}
       onPress={toggleTheme}
+      accessibilityLabel={isDark ? 'Chuyển sang chế độ sáng' : 'Chuyển sang chế độ tối'}
     >
-      <View style={[styles.nativeCircle, isDark ? styles.nativeCircleDark : styles.nativeCircleLight]} />
-      <Text style={[styles.nativeText, isDark ? styles.textDark : styles.textLight]}>
-        {isDark ? 'Chế độ tối' : 'Chế độ sáng'}
-      </Text>
+      <Ionicons
+        name={isDark ? 'moon' : 'sunny'}
+        size={18}
+        color={isDark ? '#fbbf24' : '#f59e0b'}
+      />
     </TouchableOpacity>
   );
 };

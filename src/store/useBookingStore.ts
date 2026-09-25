@@ -2,8 +2,24 @@ import { Platform } from 'react-native';
 import { create } from 'zustand';
 import { persist, createJSONStorage, StateStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Booking, Building, Equipment, Room } from '../types';
+import { Booking, Building, Equipment, Room, UserProfile, UserRole } from '../types';
 import { MOCK_ROOMS } from '../data/mockRooms';
+import {
+  signInVkuUser,
+  signUpVkuUser,
+  signOutVkuUser,
+  listenToUserRole,
+  updateUserRoleInFirebase,
+} from '../services/authService';
+import {
+  subscribeRoomsRealtime,
+  subscribeBookingsRealtime,
+  addRoomToFirestore,
+  deleteRoomFromFirestore,
+  createBookingInFirestore,
+  cancelBookingInFirestore,
+  checkInBookingInFirestore,
+} from '../services/firestoreService';
 
 export type ThemeMode = 'light' | 'dark';
 
@@ -67,22 +83,27 @@ interface BookingState {
   themeMode: ThemeMode;
   toggleTheme: () => void;
 
-  // User Session
-  userEmail: string;
+  // VKU Authentication & Dynamic Role
+  currentUser: UserProfile | null;
+  userRole: UserRole;
+  isAuthenticated: boolean;
+  loginUser: (email: string, pass: string) => Promise<UserProfile>;
+  registerUser: (email: string, pass: string, displayName?: string) => Promise<UserProfile>;
+  logoutUser: () => Promise<void>;
+  updateUserRole: (uid: string, newRole: UserRole) => Promise<boolean>;
 
-  // Admin Session
+  // Legacy / Direct Admin Flag (True if userRole === 'admin')
   isAdminLoggedIn: boolean;
-  adminEmail: string;
-  loginAdmin: (password: string) => boolean;
-  logoutAdmin: () => void;
 
-  // Rooms List (Dynamic)
+  // Rooms List (Dynamic from Firebase / MOCK)
   rooms: Room[];
-  addRoom: (roomData: Omit<Room, 'id'>) => Room;
-  deleteRoom: (roomId: string) => void;
+  addRoom: (roomData: Omit<Room, 'id'>) => Promise<Room>;
+  deleteRoom: (roomId: string) => Promise<void>;
 
-  // Bookings List
+  // Bookings List (Synced with Firestore)
   bookings: Booking[];
+  bookingFilterStatus: 'ALL' | 'confirmed' | 'checked_in' | 'cancelled';
+  setBookingFilterStatus: (status: 'ALL' | 'confirmed' | 'checked_in' | 'cancelled') => void;
 
   // Filter States
   searchQuery: string;
@@ -101,37 +122,116 @@ interface BookingState {
   isRoomSlotBooked: (roomId: string, date: string, slotId: string) => boolean;
   isSlotBooked: (roomId: string, date: string, slotId: string) => boolean;
   isRoomAvailableToday: (roomId: string) => boolean;
-  addBooking: (params: { roomId: string; roomName: string; building: Building; floor: number; date: string; slotId: string; slotTime: string }) => Booking | null;
+  addBooking: (params: {
+    roomId: string;
+    roomName: string;
+    building: Building;
+    floor: number;
+    date: string;
+    slotId: string;
+    slotTime: string;
+    purpose?: string;
+  }) => Booking | null;
   cancelBooking: (bookingId: string) => void;
+  checkInBooking: (bookingId: string) => Promise<boolean>;
 
   // Selector helper
   getFilteredRooms: () => Room[];
+  initRealtimeSync: () => () => void;
 }
+
+let roleUnsubscribe: (() => void) | null = null;
+let roomsUnsubscribe: (() => void) | null = null;
+let bookingsUnsubscribe: (() => void) | null = null;
 
 export const useBookingStore = create<BookingState>()(
   persist(
     (set, get) => ({
       themeMode: 'light',
-      toggleTheme: () => set((state) => ({ themeMode: state.themeMode === 'light' ? 'dark' : 'light' })),
+      toggleTheme: () =>
+        set((state) => ({ themeMode: state.themeMode === 'light' ? 'dark' : 'light' })),
 
-      userEmail: 'student.vku@vku.udn.vn',
-
+      currentUser: null,
+      userRole: 'student',
+      isAuthenticated: false,
       isAdminLoggedIn: false,
-      adminEmail: 'admin@vku.udn.vn',
 
-      loginAdmin: (password: string) => {
-        if (password.trim() === 'admin' || password.trim() === 'admin123') {
-          set({ isAdminLoggedIn: true });
-          return true;
-        }
-        return false;
+      loginUser: async (email, pass) => {
+        const user = await signInVkuUser(email, pass);
+        set({
+          currentUser: user,
+          userRole: user.role,
+          isAuthenticated: true,
+          isAdminLoggedIn: user.role === 'admin',
+        });
+
+        // Listen for real-time role changes in Firestore
+        if (roleUnsubscribe) roleUnsubscribe();
+        roleUnsubscribe = listenToUserRole(user.uid, (newRole) => {
+          set({
+            userRole: newRole,
+            isAdminLoggedIn: newRole === 'admin',
+            currentUser: get().currentUser
+              ? { ...get().currentUser!, role: newRole }
+              : null,
+          });
+        });
+
+        return user;
       },
 
-      logoutAdmin: () => set({ isAdminLoggedIn: false }),
+      registerUser: async (email, pass, displayName) => {
+        const user = await signUpVkuUser(email, pass, displayName);
+        set({
+          currentUser: user,
+          userRole: user.role,
+          isAuthenticated: true,
+          isAdminLoggedIn: user.role === 'admin',
+        });
+
+        if (roleUnsubscribe) roleUnsubscribe();
+        roleUnsubscribe = listenToUserRole(user.uid, (newRole) => {
+          set({
+            userRole: newRole,
+            isAdminLoggedIn: newRole === 'admin',
+            currentUser: get().currentUser
+              ? { ...get().currentUser!, role: newRole }
+              : null,
+          });
+        });
+
+        return user;
+      },
+
+      logoutUser: async () => {
+        await signOutVkuUser();
+        if (roleUnsubscribe) {
+          roleUnsubscribe();
+          roleUnsubscribe = null;
+        }
+        set({
+          currentUser: null,
+          userRole: 'student',
+          isAuthenticated: false,
+          isAdminLoggedIn: false,
+        });
+      },
+
+      updateUserRole: async (uid, newRole) => {
+        const success = await updateUserRoleInFirebase(uid, newRole);
+        if (success && get().currentUser?.uid === uid) {
+          set({
+            userRole: newRole,
+            isAdminLoggedIn: newRole === 'admin',
+            currentUser: { ...get().currentUser!, role: newRole },
+          });
+        }
+        return success;
+      },
 
       rooms: MOCK_ROOMS,
 
-      addRoom: (roomData) => {
+      addRoom: async (roomData) => {
         const newId = `room-custom-${Date.now()}`;
         const newRoom: Room = {
           id: newId,
@@ -140,16 +240,20 @@ export const useBookingStore = create<BookingState>()(
         set((state) => ({
           rooms: [newRoom, ...state.rooms],
         }));
+        await addRoomToFirestore(newRoom);
         return newRoom;
       },
 
-      deleteRoom: (roomId) => {
+      deleteRoom: async (roomId) => {
         set((state) => ({
           rooms: state.rooms.filter((r) => r.id !== roomId),
         }));
+        await deleteRoomFromFirestore(roomId);
       },
 
       bookings: [],
+      bookingFilterStatus: 'ALL',
+      setBookingFilterStatus: (status) => set({ bookingFilterStatus: status }),
 
       searchQuery: '',
       selectedBuilding: 'ALL',
@@ -182,30 +286,44 @@ export const useBookingStore = create<BookingState>()(
       isRoomSlotBooked: (roomId, date, slotId) => {
         const { bookings } = get();
         return bookings.some(
-          (b) => b.roomId === roomId && b.date === date && b.slotId === slotId
+          (b) =>
+            b.roomId === roomId &&
+            b.date === date &&
+            b.slotId === slotId &&
+            b.status !== 'cancelled'
         );
       },
 
-      // Global Slot Conflict Check: Block the time slot across ALL rooms for that date
+      // Global Slot Conflict Check
       isSlotBooked: (_roomId, date, slotId) => {
         const { bookings } = get();
         return bookings.some(
-          (b) => b.date === date && b.slotId === slotId
+          (b) => b.date === date && b.slotId === slotId && b.status !== 'cancelled'
         );
       },
 
-      // Strictly check if THIS specific room has a booking today in local timezone
+      // Check if room has an active booking today
       isRoomAvailableToday: (roomId) => {
         const { bookings } = get();
         const todayStr = getLocalTodayDateString();
-        const hasBookingToday = bookings.some((b) => b.roomId === roomId && b.date === todayStr);
+        const hasBookingToday = bookings.some(
+          (b) => b.roomId === roomId && b.date === todayStr && b.status !== 'cancelled'
+        );
         return !hasBookingToday;
       },
 
-      addBooking: ({ roomId, roomName, building, floor, date, slotId, slotTime }) => {
-        const { isSlotBooked, userEmail, bookings } = get();
+      addBooking: ({
+        roomId,
+        roomName,
+        building,
+        floor,
+        date,
+        slotId,
+        slotTime,
+        purpose,
+      }) => {
+        const { isSlotBooked, currentUser, bookings } = get();
 
-        // Prevent double-booking across any room for the same date & time slot
         if (isSlotBooked(roomId, date, slotId)) {
           return null;
         }
@@ -220,19 +338,37 @@ export const useBookingStore = create<BookingState>()(
           date,
           slotId,
           slotTime,
-          userEmail,
+          userId: currentUser?.uid || 'guest-uid',
+          userEmail: currentUser?.email || 'student@vku.udn.vn',
           createdAt: new Date().toISOString(),
-          qrCodeValue: `VKU-PASS-${bookingId}-${roomId}`
+          qrCodeValue: `VKU-PASS-${bookingId}-${roomId}`,
+          status: 'confirmed',
+          purpose: purpose || 'Học nhóm & Thuyết trình',
         };
 
         set({ bookings: [newBooking, ...bookings] });
+        createBookingInFirestore(newBooking);
         return newBooking;
       },
 
       cancelBooking: (bookingId) => {
         set((state) => ({
-          bookings: state.bookings.filter((b) => b.id !== bookingId),
+          bookings: state.bookings.map((b) =>
+            b.id === bookingId ? { ...b, status: 'cancelled' } : b
+          ),
         }));
+        cancelBookingInFirestore(bookingId);
+      },
+
+      checkInBooking: async (bookingId) => {
+        set((state) => ({
+          bookings: state.bookings.map((b) =>
+            b.id === bookingId
+              ? { ...b, status: 'checked_in', checkedInAt: new Date().toISOString() }
+              : b
+          ),
+        }));
+        return await checkInBookingInFirestore(bookingId);
       },
 
       getFilteredRooms: () => {
@@ -267,10 +403,49 @@ export const useBookingStore = create<BookingState>()(
           return true;
         });
       },
+
+      initRealtimeSync: () => {
+        if (!roomsUnsubscribe) {
+          roomsUnsubscribe = subscribeRoomsRealtime((rooms) => {
+            set({ rooms });
+          });
+        }
+
+        if (!bookingsUnsubscribe) {
+          bookingsUnsubscribe = subscribeBookingsRealtime((bookings) => {
+            set({ bookings });
+          });
+        }
+
+        // Return cleanup
+        return () => {
+          if (roomsUnsubscribe) {
+            roomsUnsubscribe();
+            roomsUnsubscribe = null;
+          }
+          if (bookingsUnsubscribe) {
+            bookingsUnsubscribe();
+            bookingsUnsubscribe = null;
+          }
+          if (roleUnsubscribe) {
+            roleUnsubscribe();
+            roleUnsubscribe = null;
+          }
+        };
+      },
     }),
     {
-      name: 'vku-study-room-booking-store',
+      name: 'vku-study-room-booking-store-v2',
       storage: createJSONStorage(() => safeStorage),
+      partialize: (state) => ({
+        themeMode: state.themeMode,
+        currentUser: state.currentUser,
+        userRole: state.userRole,
+        isAuthenticated: state.isAuthenticated,
+        isAdminLoggedIn: state.isAdminLoggedIn,
+        bookings: state.bookings,
+        rooms: state.rooms,
+      }),
     }
   )
 );
