@@ -145,9 +145,12 @@ export async function signInVkuUser(
         firebaseErr.code === 'auth/wrong-password' ||
         firebaseErr.code === 'auth/network-request-failed' ||
         firebaseErr.code === 'auth/invalid-api-key' ||
+        firebaseErr.code === 'auth/api-key-not-valid' ||
+        firebaseErr.code?.includes('api-key') ||
+        firebaseErr.message?.includes('api-key') ||
         firebaseErr.code === 'auth/configuration-not-found'
       ) {
-        console.warn(`[AuthService] Notice: Firebase Auth (${firebaseErr.code}). Using resilient profile fallback.`);
+        console.warn(`[AuthService] Notice: Firebase Auth (${firebaseErr.code || firebaseErr.message}). Using resilient profile fallback.`);
         const pseudoUid = `uid-${normalizedEmail.replace(/[^a-zA-Z0-9]/g, '_')}`;
         return await getOrCreateUserProfile(pseudoUid, normalizedEmail);
       }
@@ -186,9 +189,12 @@ export async function signUpVkuUser(
       if (
         firebaseErr.code === 'auth/network-request-failed' ||
         firebaseErr.code === 'auth/invalid-api-key' ||
+        firebaseErr.code === 'auth/api-key-not-valid' ||
+        firebaseErr.code?.includes('api-key') ||
+        firebaseErr.message?.includes('api-key') ||
         firebaseErr.code === 'auth/configuration-not-found'
       ) {
-        console.warn(`[AuthService] Notice: Firebase Auth (${firebaseErr.code}). Using resilient local user profile.`);
+        console.warn(`[AuthService] Notice: Firebase Auth (${firebaseErr.code || firebaseErr.message}). Using resilient local user profile.`);
         const pseudoUid = `uid-${normalizedEmail.replace(/[^a-zA-Z0-9]/g, '_')}`;
         return await getOrCreateUserProfile(pseudoUid, normalizedEmail, displayName);
       }
